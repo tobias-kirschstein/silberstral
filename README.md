@@ -1,4 +1,4 @@
-<img src="https://github.com/tobias-kirschstein/silberstral/tree/master/img/logo.png" width="150px"> Silberstral
+<img src="https://raw.githubusercontent.com/tobias-kirschstein/silberstral/master/img/logo.png" width="150px"> Silberstral
 ===========
 >Reveal the true shape of type vars
 
