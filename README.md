@@ -6,7 +6,7 @@ Python's typing system is weak and lacks features well known in other languages.
 For example, templating in C++ allows you to instantiate a new object of the templated class `T` via `T(..)` which is not possible in Python.
 The **Silberstral** package provides remedy with a simple utility to obtain the actual *type* that a generic type var refers to:
 
-### C++
+#### C++
 ```cpp
 template<typename T>
 class DefaultContainer {
@@ -18,7 +18,7 @@ class DefaultContainer {
     
 }
 ```
-### Python
+#### Python
 ```python
 _T = TypeVar('_T')
 class DefaultContainer(Generic[_T]):
@@ -28,7 +28,7 @@ class DefaultContainer(Generic[_T]):
         ...
 ```
 
-### Python + Silberstral
+#### Python + Silberstral
 
 ```python
 from silberstral import reveal_type_var
