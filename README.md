@@ -1,6 +1,10 @@
+
 <img src="https://raw.githubusercontent.com/tobias-kirschstein/silberstral/master/img/logo.png" width="150px"> Silberstral
 ===========
 >Reveal the true shape of type vars
+
+[//]: # (For more badges visit https://shields.io/)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/silberstral)
 
 Python's typing system is weak and lacks features well known in other languages. 
 For example, templating in C++ allows you to instantiate a new object of the templated class `T` via `T(..)` which is not possible in Python.
