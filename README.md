@@ -4,7 +4,8 @@
 >Reveal the true shape of type vars
 
 [//]: # (For more badges visit https://shields.io/)
-![PyPI - Python Version](https://img.shields.io/pypi/pyversions/silberstral)
+[![PyPI](https://img.shields.io/pypi/v/silberstral?color=blue)](https://pypi.org/project/silberstral/)
+[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/silberstral)](https://pypi.org/project/silberstral/)
 
 Python's typing system is weak and lacks features well known in other languages. 
 For example, templating in C++ allows you to instantiate a new object of the templated class `T` via `T(..)` which is not possible in Python.
@@ -44,6 +45,12 @@ class DefaultList(Generic[_T]):
         T_cls = reveal_type_var(self, _T)  # <- Reveals the actual class of _T, e.g., int, str, ...
         default_element = T_cls()
         ...
+```
+
+## Installation
+The package is available at [pypi](https://pypi.org/project/silberstral/):
+```commandline
+pip install silberstral
 ```
 
 ## Usage
