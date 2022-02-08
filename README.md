@@ -1,4 +1,4 @@
-<img src="img/logo.png" width="120px" style="vertical-align: bottom"> Silberstral 
+<img src="img/logo.png" width="150px"> Silberstral
 ===========
 >Reveal the true shape of type vars
 
