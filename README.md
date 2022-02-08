@@ -1,4 +1,4 @@
-![](logo.png | width=100) Silberstral 
+<img src="logo.png" width="100" height="100"> Silberstral 
 ===========
 >Reveal the true shape of type vars
 
