@@ -3,11 +3,17 @@ from typing import TypeVar, Generic, Iterable, Iterator, T_co, Container, Collec
     T, KT, VT, T_contra, V_co, Union
 from unittest import TestCase
 
-from silberstral import reveal_type_var, get_origin, gather_types, reveal_type_vars
+from silberstral import reveal_type_var, get_origin, gather_types, reveal_type_vars, save_instantiate
+from silberstral.silberstral import create_linked_type_var
 
 _T1 = TypeVar('_T1')
 _T2 = TypeVar('_T2')
 _T3 = TypeVar('_T3')
+
+# This is the only way to make override Type Vars work:
+# If Super class uses _T1 and Middle class overrides that with _T2, super class cannot access _T1 anymore
+# (it is never created). The workaround is to create a second Typevar with the SAME NAME as _T1
+_T2_linked = create_linked_type_var(_T1)
 
 
 # =========================================================================
@@ -35,7 +41,8 @@ class Value3:
 # -------------------------------------------------------------------------
 
 class SuperClass1TypeVar(Generic[_T1]):
-    pass
+    def __init__(self):
+        self.cls_T1 = reveal_type_var(self, _T1)
 
 
 class SuperClass1TypeVarA(Generic[_T1]):
@@ -48,6 +55,15 @@ class SuperClass1TypeVarB(Generic[_T2]):
 
 class SuperClass2TypeVar(Generic[_T1, _T2]):
     pass
+
+
+class SuperClass1TypeVarWithOther(Value1, Generic[_T1]):
+
+    def __new__(cls, *args, **kwargs):
+        return super(SuperClass1TypeVarWithOther, cls).__new__(cls, *args, **kwargs)
+
+    def __init__(self):
+        self.cls_T1 = reveal_type_var(self, _T1)
 
 
 class MiddleClass1TypeVar(SuperClass1TypeVar[_T1]):
@@ -64,6 +80,12 @@ class MiddleClass1TypeVarB(SuperClass1TypeVarA[_T2]):
 
 class MiddleClass2TypeVar(SuperClass2TypeVar[_T1, _T2]):
     pass
+
+
+class MiddleClass1TypeVarBConstructor(SuperClass1TypeVarWithOther[_T2_linked]):
+    def __init__(self):
+        super().__init__()
+        self.cls_T2 = reveal_type_var(self, _T2_linked)
 
 
 # -------------------------------------------------------------------------
@@ -335,6 +357,18 @@ class GenericTest(TestCase):
             # returned by reveal_type_vars
             self.assertEqual(reveal_type_vars(InheritsMultipleContainers), {_T1: Value1, 1: Value2, 2: Value3})
 
+    def test_save_instantiate(self):
+        # In case, a generic class was directly resolved with a type without subclassing
+        self.assertEqual(reveal_type_var(List[int], T), int)
+
+        self.assertEqual(reveal_type_var(SuperClass1TypeVar[Value1], _T1), Value1)
+        obj: SuperClass1TypeVar = save_instantiate(SuperClass1TypeVar[Value1])
+        self.assertEqual(obj.cls_T1, Value1)
+
+        self.assertEqual(reveal_type_var(SuperClass1TypeVarWithOther[Value1], _T1), Value1)
+        obj: SuperClass1TypeVarWithOther = save_instantiate(SuperClass1TypeVarWithOther[Value1])
+        self.assertEqual(obj.cls_T1, Value1)
+
     def test_get_origin(self):
         # Generic classes without any type var specification should return None as origin
         self.assertIsNone(get_origin(List))
@@ -358,3 +392,8 @@ class GenericTest(TestCase):
 
         # Currently, type vars instantiated through subclassing will NOT be listed
         self.assertEqual(gather_types(TypeVar2Super11Level2), {TypeVar2Super11Level2})
+
+    def test_override_type_var_middle_class(self):
+        obj: MiddleClass1TypeVarBConstructor = save_instantiate(MiddleClass1TypeVarBConstructor[Value1])
+        self.assertEqual(obj.cls_T1, Value1)
+        self.assertEqual(obj.cls_T2, Value1)
