@@ -1,4 +1,5 @@
 import sys
+from dataclasses import dataclass
 from typing import TypeVar, Generic, Iterable, Iterator, T_co, Container, Collection, List, Deque, Set, Dict, Generator, \
     T, KT, VT, T_contra, V_co, Union
 from unittest import TestCase
@@ -268,6 +269,16 @@ if sys.version_info >= (3, 9):
     V_co = 2
 
 
+# ----------------------------------------------------------
+# Dataclasses
+# ----------------------------------------------------------
+
+@dataclass
+class DataclassWithUnionIntFloatAndString:
+    a: Union[int, float]
+    b: str
+
+
 # =========================================================================
 # Actual Tests
 # =========================================================================
@@ -392,6 +403,9 @@ class GenericTest(TestCase):
 
         # Currently, type vars instantiated through subclassing will NOT be listed
         self.assertEqual(gather_types(TypeVar2Super11Level2), {TypeVar2Super11Level2})
+
+        self.assertEqual(gather_types(DataclassWithUnionIntFloatAndString),
+                         {DataclassWithUnionIntFloatAndString, int, float, str})
 
     def test_override_type_var_middle_class(self):
         obj: MiddleClass1TypeVarBConstructor = save_instantiate(MiddleClass1TypeVarBConstructor[Value1])

@@ -237,6 +237,7 @@ def gather_types(types: Union[Iterable[Type], Type], parent_type: Optional[Type]
             # TODO: Could get some infinite recursion here. Maybe track visited types?
             field_types = get_type_hints(t).values()
             all_types.update(gather_types(field_types, t))
+            all_types.add(t)
         elif isinstance(t, TypeVar):
             t = reveal_type_var(parent_type, t)
             all_types.add(t)
