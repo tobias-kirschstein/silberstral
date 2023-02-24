@@ -224,6 +224,7 @@ def gather_types(types: Union[Iterable[Type], Type], parent_type: Optional[Type]
     """
 
     # Ensure that types is iterable
+    # TODO: is_generic_collection(types) fails with "unhashable type: 'list'" for dacite > 1.7.0
     if is_generic_collection(types) or is_generic(types) or isclass(types):
         types = [types]
 
