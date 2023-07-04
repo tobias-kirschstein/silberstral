@@ -1,7 +1,7 @@
 import sys
 from dataclasses import dataclass
 from typing import TypeVar, Generic, Iterable, Iterator, T_co, Container, Collection, List, Deque, Set, Dict, Generator, \
-    T, KT, VT, T_contra, V_co, Union
+    T, KT, VT, T_contra, V_co, Union, Optional
 from unittest import TestCase
 
 from silberstral import reveal_type_var, get_origin, gather_types, reveal_type_vars, save_instantiate
@@ -279,6 +279,12 @@ class DataclassWithUnionIntFloatAndString:
     b: str
 
 
+@dataclass
+class RecursiveDataclass:
+    a: str
+    nested: Optional['RecursiveDataclass'] = None
+
+
 # =========================================================================
 # Actual Tests
 # =========================================================================
@@ -406,6 +412,8 @@ class GenericTest(TestCase):
 
         self.assertEqual(gather_types(DataclassWithUnionIntFloatAndString),
                          {DataclassWithUnionIntFloatAndString, int, float, str})
+
+        self.assertEqual(gather_types(RecursiveDataclass), {str, RecursiveDataclass, type(None)})
 
     def test_override_type_var_middle_class(self):
         obj: MiddleClass1TypeVarBConstructor = save_instantiate(MiddleClass1TypeVarBConstructor[Value1])

@@ -229,22 +229,34 @@ def gather_types(types: Union[Iterable[Type], Type], parent_type: Optional[Type]
         types = [types]
 
     all_types = set()
+    _gather_types_recursive(types, all_types, parent_type=parent_type)
+    return all_types
+
+
+def _gather_types_recursive(types: Union[Iterable[Type], Type],
+                            collected_types: Set[Type],
+                            parent_type: Optional[Type] = None,
+                            ):
     for t in types:
         # t = t if inspect.isclass(t) else type(t)  # Ensure that passed value is a class
         # TODO: wrt parent_type: maybe we don't want to allow GenericAliases in dataclasses?
         if is_generic_collection(t) or is_union(t):
-            all_types.update(gather_types(extract_generic(t), parent_type))
+            extracted_types = set(extract_generic(t))
+            extracted_types.difference_update(collected_types)
+            _gather_types_recursive(extracted_types, collected_types, parent_type=parent_type)
         elif is_dataclass(t):
             # TODO: Could get some infinite recursion here. Maybe track visited types?
             field_types = get_type_hints(t).values()
-            all_types.update(gather_types(field_types, t))
-            all_types.add(t)  # For dataclasses, also add the type of the dataclass, not only the containing types
+            field_types = set(field_types)
+            field_types.difference_update(collected_types)
+            collected_types.add(t)  # For dataclasses, also add the type of the dataclass, not only the containing types
+            # Important that t is first added to collected_types. Otherwise, we might get infinite recursion
+            _gather_types_recursive(field_types, collected_types, parent_type=t)
         elif isinstance(t, TypeVar):
             t = reveal_type_var(parent_type, t)
-            all_types.add(t)
+            collected_types.add(t)
         else:
-            all_types.add(t)
-    return all_types
+            collected_types.add(t)
 
 
 def save_instantiate(cls_generic: _GenericAlias, *args, **kwargs) -> object:
